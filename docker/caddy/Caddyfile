@@ -1,0 +1,25 @@
+{
+	http_port {$HTTP_PORT:8080}
+	https_port {$HTTPS_PORT:8443}
+	local_certs
+	skip_install_trust
+	# Bare-IP connections send no SNI; serve the localhost cert so https://127.0.0.1:8443 at least handshakes.
+	default_sni localhost
+	# Caddy's automatic redirect drops a non-standard https_port; we redirect explicitly below.
+	auto_https disable_redirects
+}
+
+http://localhost, http://127.0.0.1, http://easy-wp.test {
+	redir https://{host}:{$HTTPS_PORT:8443}{uri} permanent
+}
+
+localhost, 127.0.0.1, easy-wp.test {
+	encode zstd gzip
+	reverse_proxy wordpress:80
+}
+
+# Media bucket. S3_UPLOADS_BUCKET_URL in .env points here; MinIO serves objects of a
+# public-download bucket at /<bucket>/<key> without credentials.
+localhost:{$MEDIA_HTTPS_PORT:9443}, 127.0.0.1:{$MEDIA_HTTPS_PORT:9443}, easy-wp.test:{$MEDIA_HTTPS_PORT:9443} {
+	reverse_proxy minio:9000
+}

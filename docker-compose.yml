@@ -1,0 +1,93 @@
+name: easy-wp
+
+services:
+  wordpress:
+    build: .
+    env_file: .env
+    environment:
+      # Marker for the local auto-login mu-plugin. Deliberately NOT in .env, so copying .env elsewhere cannot carry it.
+      WP_LOCAL_STACK: "1"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+
+  # Local stand-in for the production bucket (S3 API). WordPress talks to it at http://minio:9000,
+  # browsers fetch media through Caddy at https://localhost:9443/<bucket>/... (see the Caddyfile).
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_UPLOADS_KEY:-minio-local}
+      MINIO_ROOT_PASSWORD: ${S3_UPLOADS_SECRET:-minio-local-secret}
+    ports:
+      # MinIO web console, loopback-only like everything else. Sign in with S3_UPLOADS_KEY / S3_UPLOADS_SECRET.
+      - "127.0.0.1:${MINIO_CONSOLE_PORT:-9101}:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  # Creates the bucket and makes its objects publicly readable, then exits. Safe to re-run.
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${S3_UPLOADS_KEY:-minio-local}
+      MINIO_ROOT_PASSWORD: ${S3_UPLOADS_SECRET:-minio-local-secret}
+      BUCKET: ${S3_UPLOADS_BUCKET:-wp-uploads}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD" &&
+        mc mb --ignore-existing "local/$$BUCKET" &&
+        mc anonymous set download "local/$$BUCKET"
+
+  caddy:
+    image: caddy:2-alpine
+    environment:
+      HTTP_PORT: ${HTTP_PORT:-8080}
+      HTTPS_PORT: ${HTTPS_PORT:-8443}
+      MEDIA_HTTPS_PORT: ${MEDIA_HTTPS_PORT:-9443}
+    ports:
+      - "127.0.0.1:${HTTP_PORT:-8080}:${HTTP_PORT:-8080}"
+      - "127.0.0.1:${HTTPS_PORT:-8443}:${HTTPS_PORT:-8443}"
+      - "127.0.0.1:${MEDIA_HTTPS_PORT:-9443}:${MEDIA_HTTPS_PORT:-9443}"
+    volumes:
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - wordpress
+
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-wordpress}
+      MYSQL_USER: ${DB_USER:-wordpress}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-wordpress}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+    ports:
+      # Not 3306, so it can run beside a local MySQL. Loopback-only: the local auto-login must not be reachable from the LAN.
+      - "127.0.0.1:${DB_PORT_HOST:-3307}:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${DB_ROOT_PASSWORD:-root}"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  db_data:
+  minio_data:
+  caddy_data:
+  caddy_config:

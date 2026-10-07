@@ -1,0 +1,37 @@
+.git
+.gitignore
+.gitattributes
+.env
+.env.*
+.mcp.json
+.claude
+.codex
+.beads
+.agents
+.cursor
+.opencode
+openspec
+node_modules
+wp-content/uploads
+wp-content/debug.log
+wp-content/cache
+wp-content/upgrade
+*.md
+.idea
+.vscode
+.DS_Store
+Thumbs.db
+
+# Local-stack-only files have no business in the production image
+docker-compose.yml
+docker/caddy
+docker/caddy-root.crt
+docker/*.ps1
+railway.json
+
+# Local-only auto-login must never reach the production image
+wp-content/mu-plugins/local-dev-login.php
+
+# Pulled from GitHub by docker/fetch-plugins.sh (see docker/external-plugins.txt)
+wp-content/plugins/kodanote-mcp
+wp-content/plugins/kodanote-content-publisher

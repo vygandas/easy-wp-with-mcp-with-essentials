@@ -1,0 +1,21 @@
+.git
+.env
+.env.*
+.mcp.json
+.claude
+.codex
+.beads
+.agents
+.cursor
+.opencode
+openspec
+node_modules
+wp-content/uploads
+wp-content/debug.log
+wp-content/cache
+wp-content/upgrade
+docker/caddy-root.crt
+
+# Pulled from GitHub by docker/fetch-plugins.sh (see docker/external-plugins.txt)
+wp-content/plugins/kodanote-mcp
+wp-content/plugins/kodanote-content-publisher

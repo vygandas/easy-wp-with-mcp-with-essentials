@@ -21,7 +21,7 @@ WordPress configuration lives in the database. It survives code deployments and 
 ## Stack
 
 - WordPress 7.1 vendored at the repository root, which is the web root. Core is updated by replacing its files from the release zip. Never edit `wp-admin/`, `wp-includes/` or the root core files.
-- One `Dockerfile` (php:8.4-apache, WP-CLI) for local and production. `docker/entrypoint.sh` enforces mpm_prefork (Railway's image stacker can resurrect mpm_event), rewrites Apache's `Listen` to `$PORT`, and in production turns off OPcache timestamp checks and adds HSTS for requests that arrived over HTTPS.
+- One `Dockerfile` (php:8.4-apache, WP-CLI) for local and production. `docker/entrypoint.sh` enforces mpm_prefork (some platform builders resurrect mpm_event), rewrites Apache's `Listen` to `$PORT`, and in production turns off OPcache timestamp checks and adds HSTS for requests that arrived over HTTPS.
 - Apache hardening in `docker/apache/wordpress.conf` applies everywhere: `xmlrpc.php`, `readme.html`, `license.txt`, `wp-config-sample.php` and dotfiles return 403, PHP never executes from uploads, `ServerTokens Prod`, plus `nosniff` and `Referrer-Policy`. `docker/apache/mpm_prefork.conf` caps Apache at `APACHE_MAX_REQUEST_WORKERS` children.
 - No `package.json`, no build step, no Node stage.
 
@@ -57,8 +57,8 @@ docker compose run --rm --no-deps -e WP_ENVIRONMENT_TYPE=production -e PORT=9090
 
 ## Configuration model
 
-- `wp-config.php` is committed and holds no secrets. Every value comes from environment variables through `site_env()` and `site_env_bool()`. Locally Compose injects `.env`; on Railway they are service variables. Never hardcode a value in `wp-config.php`; add a variable to `.env.example` instead.
-- Database: `MYSQL_URL` (Railway's `mysql://user:pass@host:port/db`, `DATABASE_URL` also works) or `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`.
+- `wp-config.php` is committed and holds no secrets. Every value comes from environment variables through `site_env()` and `site_env_bool()`. Locally Compose injects `.env`; in production they come from the host's environment settings. Never hardcode a value in `wp-config.php`; add a variable to `.env.example` instead.
+- Database: `MYSQL_URL` or `DATABASE_URL` (`mysql://user:pass@host:port/db`), or `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`.
 - `WP_HOME` is the canonical URL, port included locally. `WP_SITEURL` defaults to it and `FORCE_SSL_ADMIN` follows its scheme.
 - `WP_ENVIRONMENT_TYPE`: `local` means debug on and file changes allowed; `production` means debug off, `DISALLOW_FILE_MODS` and no automatic updates. `DISALLOW_FILE_EDIT` is always on.
 
@@ -130,7 +130,7 @@ The container filesystem is ephemeral: anything uploaded to its disk disappears 
 - Objects are stored with `Cache-Control: max-age=31536000`, which is safe because WordPress never reuses a filename.
 - `wp-config.php` strips a trailing `/<bucket>` from `S3_UPLOADS_ENDPOINT`. R2's dashboard shows the endpoint with the bucket appended, and with it every key gets a doubled `bucket/` prefix and uploads hang.
 - Cloudflare caches 404s for a few minutes by default. On the media domain that becomes blank media-library tiles whenever a size is requested before WordPress has written it, so add a Cache Rule for the media host that doesn't cache 404s.
-- Railway Storage Buckets are private (presigned links only) and can't serve website images.
+- Buckets that only issue presigned links (Railway Storage Buckets, for example) can't serve website images.
 - Cloudflare R2: endpoint `https://<account-id>.r2.cloudflarestorage.com`, region `auto`, ACL `none`, an API token scoped to Object Read & Write on the bucket, and a custom domain for `S3_UPLOADS_BUCKET_URL`.
 - AWS S3: endpoint empty, path style `false`, and either bucket ACLs with `public-read` or a public-read bucket policy plus ACL `none`.
 
@@ -152,14 +152,19 @@ The MCP server is **Kodanote MCP**, an external plugin (see PLUGINS.md) that run
 
 The official WordPress MCP Adapter is still vendored, inactive. Activate it only if a client must authenticate with an Application Password instead of OAuth. It serves `https://<domain>/wp-json/mcp/mcp-adapter-default-server` with three meta tools (`mcp-adapter-discover-abilities`, `mcp-adapter-get-ability-info`, `mcp-adapter-execute-ability`) over the abilities that `site-abilities.php` registers: `site/describe-content-model`, `list-content`, `get-content`, `create-content`, `update-content`, `trash-content` (no permanent delete, on purpose), `list-terms`, `create-term`, `sideload-media`. Those abilities are brand-neutral and discover post types, taxonomies and the SEO plugin (Yoast, Rank Math or SEOPress) at runtime; filters `site_abilities_post_types`, `site_abilities_taxonomies` and `site_abilities_seo_provider` narrow or extend them. Register new ones on `wp_abilities_api_init` with the narrowest `permission_callback`, `meta.public => true` and honest `annotations`.
 
-## Deployment: Railway
+## Deployment
 
-- Same `Dockerfile` as local. `.dockerignore` keeps local-only files (Compose, Caddy, PowerShell helpers, `.env`, the auto-login, docs) out of the image.
-- `railway.json` states the intended service settings: Dockerfile builder, one replica, restart on failure, and the health check `GET /healthz.php`, which loads WordPress with `SHORTINIT` and checks the database. Railway has deprecated config-as-code for new services; apply settings in the dashboard or through `railway config` if `railway.json` is ignored.
-- Service variables: `WP_ENVIRONMENT_TYPE=production`, `WP_HOME=https://<domain>`, `MYSQL_URL=${{MySQL.MYSQL_URL}}`, the eight salts (fresh ones, never the local set), the `S3_UPLOADS_*` set, and optionally `APACHE_MAX_REQUEST_WORKERS`. `powershell -File docker/railway-bootstrap.ps1 -SiteUrl https://<domain> -SkipVolume` sets everything except the bucket, generating salts without printing them. Don't let it add a volume: media belongs in the bucket.
-- Put Cloudflare in front: DNS at Cloudflare, CNAME to the Railway domain, added as a custom domain on the service. SSL/TLS mode Full or Full (strict), never Flexible, or the HTTPS detection in `wp-config.php` and Railway's own redirect loop. Leave Rocket Loader and Auto Minify off, or exclude `/wp-admin/*`; both break the block editor. If the WAF ever challenges the REST API, add a rule that skips managed challenges for `/wp-json/*` requests carrying an `Authorization` header.
-- Nothing may be written at runtime: plugins, themes and core arrive only through git and a redeploy. `.htaccess` is committed for the same reason.
-- Useful: `railway status` (run it first; link with `railway link` if needed), `railway up`, `railway logs`, `railway variable`, `railway redeploy`, and `railway ssh`, which opens a shell in the running container with WP-CLI available.
+The template assumes no particular host. Anything that builds the `Dockerfile` and runs the container works.
+
+- Same `Dockerfile` as local. `.dockerignore` keeps local-only files (Compose, Caddy, PowerShell helpers, `.env`, the auto-login, docs, agent tooling) out of the image.
+- Requirements: MySQL 8, an S3-compatible bucket, and a TLS-terminating proxy that sets `X-Forwarded-Proto`. `wp-config.php` trusts that header, so the container must only be reachable through the proxy.
+- The container listens on `$PORT` when it is set, otherwise on 80. Health check: `GET /healthz.php`, which loads WordPress with `SHORTINIT` and returns 200 only when the database answers.
+- Variables: `WP_ENVIRONMENT_TYPE=production`, `WP_HOME=https://<domain>`, the database (`MYSQL_URL` / `DATABASE_URL`, or `DB_*`), eight salts (fresh ones, never the local set; `openssl rand -hex 32` per key), the `S3_UPLOADS_*` set, and optionally `APACHE_MAX_REQUEST_WORKERS` (default 10, sized for 1 to 2 GB of RAM).
+- One replica is enough to start. With media in the bucket, nothing ties the site to a single container.
+- Cloudflare in front: SSL/TLS mode Full or Full (strict), never Flexible, or the HTTPS detection in `wp-config.php` and the host's own HTTPS redirect loop. Leave Rocket Loader and Auto Minify off, or exclude `/wp-admin/*`; both break the block editor. If the WAF ever challenges the REST API or the MCP endpoint, add a rule that skips managed challenges for `/wp-json/*` requests carrying an `Authorization` header.
+- Nothing may be written at runtime: plugins, themes and core arrive only through git and a rebuild. `.htaccess` is committed for the same reason.
+- WP-CLI is in the image. Run it in the live container with `docker exec` on your own server, or through your platform's shell feature.
+- Railway: `railway.json` states the service settings (Dockerfile builder, one replica, restart on failure, health check `/healthz.php`). Railway has deprecated config-as-code for new services, so apply settings in the dashboard if it is ignored. `powershell -File docker/railway-bootstrap.ps1 -SiteUrl https://<domain> -SkipVolume` sets the production variables, generating salts without printing them; don't let it add a volume. Useful CLI: `railway status` (run it first), `railway link`, `railway up`, `railway logs`, `railway variable`, `railway redeploy`, and `railway ssh` for a shell with WP-CLI.
 
 ## Theme: `wp-content/themes/site`
 

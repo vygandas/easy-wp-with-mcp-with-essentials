@@ -1,0 +1,254 @@
+/*
+ * Article body styling for post and page content on the front end, for plain
+ * HTML (pasted or classic content) and editor blocks alike. Scoped to the
+ * post-content block (.entry-content). Uses only Twenty Twenty-Five presets so
+ * it follows the theme's palette and scale; moves into the custom theme later.
+ */
+
+/* --- Section rhythm and hierarchy ------------------------------------- */
+.entry-content > h2 {
+	margin-block-start: var(--wp--preset--spacing--60);
+	font-size: var(--wp--preset--font-size--x-large);
+	font-weight: 500;
+	line-height: 1.15;
+	letter-spacing: -0.02em;
+}
+.entry-content > h3 {
+	margin-block-start: var(--wp--preset--spacing--50);
+	font-size: var(--wp--preset--font-size--large);
+	font-weight: 600;
+	line-height: 1.25;
+}
+.entry-content > h4 {
+	margin-block-start: var(--wp--preset--spacing--40);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 700;
+	letter-spacing: 1.4px;
+	text-transform: uppercase;
+	color: var(--wp--preset--color--accent-4);
+}
+.entry-content > h2 + *,
+.entry-content > h3 + *,
+.entry-content > h4 + * {
+	margin-block-start: var(--wp--preset--spacing--30);
+}
+.entry-content > :first-child {
+	margin-block-start: 0;
+}
+
+/* --- Inline text ------------------------------------------------------ */
+.entry-content > p a:not(.wp-element-button),
+.entry-content > ul a:not(.wp-element-button),
+.entry-content > ol a:not(.wp-element-button),
+.entry-content > blockquote a,
+.entry-content > table a,
+.entry-content .key-takeaways a {
+	color: var(--wp--preset--color--accent-3);
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.18em;
+	text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+.entry-content > p a:not(.wp-element-button):hover,
+.entry-content > ul a:not(.wp-element-button):hover,
+.entry-content > ol a:not(.wp-element-button):hover,
+.entry-content > blockquote a:hover,
+.entry-content > table a:hover,
+.entry-content .key-takeaways a:hover {
+	text-decoration-color: currentColor;
+}
+.entry-content strong {
+	font-weight: 600;
+}
+.entry-content > ul,
+.entry-content > ol {
+	padding-inline-start: 1.25em;
+}
+.entry-content li + li {
+	margin-block-start: 0.35em;
+}
+.entry-content li::marker {
+	color: var(--wp--preset--color--accent-4);
+}
+
+/* --- Key takeaways box ------------------------------------------------- */
+/* Optional plain-HTML boxes: wrap a list in <div class="key-takeaways"> or
+   <div class="table-of-contents"> and it picks these up, no block needed.
+   Kept on the theme's content column with border-box so padding stays inside it. */
+.entry-content .key-takeaways,
+.entry-content .table-of-contents {
+	box-sizing: border-box;
+	max-width: var(--wp--style--global--content-size);
+	margin-inline: auto;
+}
+.entry-content .key-takeaways {
+	margin-block-start: var(--wp--preset--spacing--50);
+	padding: var(--wp--preset--spacing--40) var(--wp--preset--spacing--50);
+	background: var(--wp--preset--color--accent-5);
+	border: 1px solid var(--wp--preset--color--accent-6);
+	border-radius: 12px;
+}
+.entry-content .key-takeaways h2,
+.entry-content .key-takeaways h3,
+.entry-content .table-of-contents h2,
+.entry-content .table-of-contents h3 {
+	margin: 0 0 var(--wp--preset--spacing--30);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 700;
+	letter-spacing: 1.4px;
+	line-height: 1.4;
+	text-transform: uppercase;
+	color: var(--wp--preset--color--accent-4);
+}
+.entry-content .key-takeaways ul {
+	margin: 0;
+	padding-inline-start: 1.2em;
+	font-size: var(--wp--preset--font-size--medium);
+}
+.entry-content .key-takeaways li + li {
+	margin-block-start: 0.55em;
+}
+.entry-content .key-takeaways li::marker {
+	color: var(--wp--preset--color--accent-3);
+}
+
+/* --- Table of contents ------------------------------------------------- */
+.entry-content .table-of-contents {
+	margin-block-start: var(--wp--preset--spacing--50);
+	padding: var(--wp--preset--spacing--20) 0 var(--wp--preset--spacing--20) var(--wp--preset--spacing--40);
+	border-left: 2px solid var(--wp--preset--color--contrast);
+}
+.entry-content .table-of-contents ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	counter-reset: toc;
+}
+.entry-content .table-of-contents li {
+	counter-increment: toc;
+	display: flex;
+	gap: 0.8em;
+	align-items: baseline;
+	font-size: var(--wp--preset--font-size--medium);
+}
+.entry-content .table-of-contents li + li {
+	margin-block-start: 0.45em;
+}
+.entry-content .table-of-contents li::before {
+	content: counter(toc, decimal-leading-zero);
+	flex: none;
+	font-size: var(--wp--preset--font-size--small);
+	font-variant-numeric: tabular-nums;
+	color: var(--wp--preset--color--accent-4);
+}
+.entry-content .table-of-contents a {
+	color: var(--wp--preset--color--contrast);
+	font-weight: 500;
+	text-decoration: none;
+}
+.entry-content .table-of-contents a:hover {
+	text-decoration: underline;
+	text-underline-offset: 0.18em;
+}
+
+/* --- Quotes ------------------------------------------------------------ */
+.entry-content > blockquote {
+	margin-block-start: var(--wp--preset--spacing--50);
+	padding: var(--wp--preset--spacing--30) var(--wp--preset--spacing--40);
+	border-left: 2px solid currentColor;
+	font-size: var(--wp--preset--font-size--large);
+	font-weight: 300;
+	font-style: italic;
+}
+.entry-content > blockquote + * {
+	margin-block-start: var(--wp--preset--spacing--50);
+}
+.entry-content blockquote p {
+	margin: 0;
+}
+.entry-content blockquote p + p {
+	margin-block-start: var(--wp--preset--spacing--30);
+}
+.entry-content blockquote cite,
+.entry-content blockquote footer {
+	display: block;
+	margin-block-start: var(--wp--preset--spacing--30);
+	font-size: var(--wp--preset--font-size--small);
+	font-style: normal;
+	font-weight: 400;
+	color: var(--wp--preset--color--accent-4);
+}
+
+/* --- Tables ------------------------------------------------------------ */
+.entry-content > table {
+	width: 100%;
+	margin-block-start: var(--wp--preset--spacing--40);
+	border-collapse: collapse;
+	font-size: var(--wp--preset--font-size--medium);
+}
+.entry-content th,
+.entry-content td {
+	padding: 0.7em 0.9em;
+	text-align: left;
+	vertical-align: top;
+	border-bottom: 1px solid var(--wp--preset--color--accent-6);
+}
+.entry-content th {
+	font-weight: 600;
+	background: var(--wp--preset--color--accent-5);
+}
+
+/* --- Media, code, rules, FAQ ------------------------------------------ */
+.entry-content img {
+	max-width: 100%;
+	height: auto;
+	border-radius: 8px;
+}
+.entry-content > figure {
+	margin-block: var(--wp--preset--spacing--60);
+}
+.entry-content figcaption {
+	margin-block-start: var(--wp--preset--spacing--20);
+	font-size: var(--wp--preset--font-size--small);
+	color: var(--wp--preset--color--accent-4);
+	text-align: center;
+}
+.entry-content code {
+	padding: 0.1em 0.35em;
+	font-size: 0.9em;
+	background: var(--wp--preset--color--accent-5);
+	border: 1px solid var(--wp--preset--color--accent-6);
+	border-radius: 4px;
+}
+.entry-content pre {
+	overflow-x: auto;
+	padding: var(--wp--preset--spacing--30) var(--wp--preset--spacing--40);
+	background: var(--wp--preset--color--contrast);
+	color: var(--wp--preset--color--base);
+	border-radius: 8px;
+	font-size: var(--wp--preset--font-size--small);
+	line-height: 1.6;
+}
+.entry-content pre code {
+	padding: 0;
+	font-size: inherit;
+	background: none;
+	border: 0;
+}
+.entry-content > hr {
+	margin-block: var(--wp--preset--spacing--60);
+	border: 0;
+	border-top: 1px solid var(--wp--preset--color--accent-6);
+}
+.entry-content > details {
+	padding-block: var(--wp--preset--spacing--30);
+	border-top: 1px solid var(--wp--preset--color--accent-6);
+}
+.entry-content > details + details {
+	margin-block-start: 0;
+}
+.entry-content summary {
+	font-weight: 600;
+	cursor: pointer;
+}
+

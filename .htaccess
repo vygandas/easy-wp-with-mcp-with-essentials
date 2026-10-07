@@ -1,0 +1,16 @@
+# Committed on purpose: production runs on an ephemeral filesystem, so WordPress
+# cannot be relied on to write this file. The same rules are also baked into the
+# image in docker/apache/wordpress.conf; WordPress may rewrite the block below
+# when permalinks are saved, which is harmless.
+
+# BEGIN WordPress
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+# END WordPress

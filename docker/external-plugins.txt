@@ -1,0 +1,17 @@
+# Plugins pulled from public GitHub repositories instead of being committed here.
+# docker/fetch-plugins.sh downloads them: the Dockerfile at build time, and
+# docker/start.ps1 into the working tree for the local bind mount.
+#
+# One plugin per line: <directory under wp-content/plugins> <owner/repo> <ref>
+# The ref is a branch, tag or commit SHA. Prefer a tag or SHA: Docker caches the
+# download until this file changes, so a branch is only re-fetched when you edit
+# this file or build without cache.
+#
+# Every directory listed here also belongs in .gitignore, .dockerignore and
+# .railwayignore, so a local copy is never committed or shipped instead.
+# Delete a line to stop pulling that plugin.
+
+# Kodanote MCP 0.3.2
+kodanote-mcp                Solidmatics/kodanote-wp-mcp                f8c3cde4966cbbf9a82ed699f3e3574e772ec769
+# Kodanote Content Publisher 1.3.113
+kodanote-content-publisher  Solidmatics/kodanote-wp-content-publisher  68c6ac01ac4db3f28f759557f8ee4dadf5fe74be

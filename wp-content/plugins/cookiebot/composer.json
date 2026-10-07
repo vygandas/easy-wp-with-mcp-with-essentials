@@ -1,0 +1,15 @@
+{
+  "name": "cybot/cookiebot",
+  "autoload": {
+    "psr-4": {
+      "cybot\\cookiebot\\": "src/",
+      "cybot\\cookiebot\\tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "phpunit": "cd tests && docker-compose run cookiebot phpunit",
+    "phpunit-local": "WP_TESTS_DIR=/tmp/wp-dev/tests/phpunit php /tmp/phpunit9.phar",
+    "phpcs": "tests/vendor/bin/phpcs",
+    "phpcbf": "tests/vendor/bin/phpcbf"
+  }
+}
