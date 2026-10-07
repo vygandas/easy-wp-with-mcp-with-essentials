@@ -7,8 +7,8 @@ Plugins reach this site in two ways.
 **External.** Pulled from a public GitHub repository at build time and never committed. `docker/external-plugins.txt` is the list:
 
 ```text
-# Kodanote MCP 0.4.0
-kodanote-mcp                Solidmatics/kodanote-wp-mcp                4bd4ddfe6b4dd72b0cefa1cc8318700fd7c5bdc9
+# Kodanote MCP 0.5.0
+kodanote-mcp                Solidmatics/kodanote-wp-mcp                e50f66c888873e2dd8bf2caa3d16236f6e645c38
 # Kodanote Content Publisher 1.3.113
 kodanote-content-publisher  Solidmatics/kodanote-wp-content-publisher  68c6ac01ac4db3f28f759557f8ee4dadf5fe74be
 ```

@@ -27,7 +27,7 @@ The repository root is the web root. WordPress core is vendored, not installed t
 | `site-abilities.php`, `site-polylang-abilities.php` | WordPress Abilities for the optional MCP Adapter route (Application Passwords instead of OAuth). |
 | `local-dev-login.php` | Token-based auto-login for the local stack only. Never shipped in the image. |
 
-**Reusable components.** WordPress synced patterns are built-in components: build a section once in the block editor, insert it on any page, and editing it later updates every page that uses it. Kodanote MCP can list, read, create and update them, and a **Used in** column and editor panel show where each one is used before you change it.
+**Reusable components.** WordPress synced patterns are built-in components: build a section once in the block editor, insert it on any page, and editing it later updates every page that uses it. Kodanote MCP can list, read, create and update them, and a **Used in** column and editor panel show where each one is used before you change it. It can also browse the ready-made section designs your theme ships, and its connection instructions tell the AI to build pages from blocks and those designs instead of raw HTML.
 
 **Theme.** `wp-content/themes/site`, an empty child of Twenty Twenty-Five. It renders exactly like the parent until you change something. Design changes are meant to go through Global Styles and the Site Editor (by hand or over MCP), not theme files.
 
