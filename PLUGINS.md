@@ -7,8 +7,8 @@ Plugins reach this site in two ways.
 **External.** Pulled from a public GitHub repository at build time and never committed. `docker/external-plugins.txt` is the list:
 
 ```text
-# Kodanote MCP 0.3.2
-kodanote-mcp                Solidmatics/kodanote-wp-mcp                f8c3cde4966cbbf9a82ed699f3e3574e772ec769
+# Kodanote MCP 0.4.0
+kodanote-mcp                Solidmatics/kodanote-wp-mcp                4bd4ddfe6b4dd72b0cefa1cc8318700fd7c5bdc9
 # Kodanote Content Publisher 1.3.113
 kodanote-content-publisher  Solidmatics/kodanote-wp-content-publisher  68c6ac01ac4db3f28f759557f8ee4dadf5fe74be
 ```
@@ -45,7 +45,7 @@ Edit it in its own repository, not in the fetched copy here: `fetch-plugins.sh` 
 
 ## The two default plugins
 
-**Kodanote MCP** is the site's MCP server: OAuth with PKCE, role-aware tools for content, media, appearance and settings, and an audit log with undo. Activation creates its tables and cleanup schedule. Connections live under **Users → MCP Connections**. Its README has the full tool and scope reference.
+**Kodanote MCP** is the site's MCP server: OAuth with PKCE, role-aware tools for content, reusable patterns, media, appearance and settings, and an audit log with undo. Activation creates its tables and cleanup schedule. Connections live under **Users → MCP Connections**. Its README has the full tool and scope reference.
 
 **Kodanote Content Publisher** lets the Kodanote service sync, schedule and publish articles to the site. It records the activating user as the default publishing author, which is why the start script activates external plugins as the first administrator. Its outbound API URL is empty by default. When there are real service URLs to point at, define them before plugins load, through the environment like everything else in `wp-config.php`:
 

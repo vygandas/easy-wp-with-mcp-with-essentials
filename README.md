@@ -10,7 +10,7 @@ The repository root is the web root. WordPress core is vendored, not installed t
 
 **Local stack.** MySQL 8.4, Caddy terminating HTTPS at `https://localhost:8443`, and MinIO standing in for the media bucket. Every port binds to `127.0.0.1`.
 
-**MCP.** The [Kodanote MCP](https://github.com/Solidmatics/kodanote-wp-mcp) plugin runs the MCP server inside WordPress: OAuth consent, role-aware tools for content, media, Global Styles, templates, navigation and settings, plus an audit log with undo. It is pulled from its public GitHub repository at build time, see [External plugins](#external-plugins).
+**MCP.** The [Kodanote MCP](https://github.com/Solidmatics/kodanote-wp-mcp) plugin runs the MCP server inside WordPress: OAuth consent, role-aware tools for content, reusable patterns, media, Global Styles, templates, navigation and settings, plus an audit log with undo. It is pulled from its public GitHub repository at build time, see [External plugins](#external-plugins).
 
 **Plugins** (committed, pinned): Yoast SEO, Modern Image Formats (WebP/AVIF on upload), Safe SVG, FileBird media folders, the official Cloudflare plugin, Cookiebot consent with Google Consent Mode v2, the WordPress AI plugin with the Anthropic, Google and OpenAI providers, MailerLite forms and S3 Uploads. Polylang, Akismet and the WordPress MCP Adapter ship inactive.
 
@@ -26,6 +26,8 @@ The repository root is the web root. WordPress core is vendored, not installed t
 | `site-polylang.php` | x-default hreflang, a `contentLanguage` dataLayer value, no language cookie. Idle without Polylang. |
 | `site-abilities.php`, `site-polylang-abilities.php` | WordPress Abilities for the optional MCP Adapter route (Application Passwords instead of OAuth). |
 | `local-dev-login.php` | Token-based auto-login for the local stack only. Never shipped in the image. |
+
+**Reusable components.** WordPress synced patterns are built-in components: build a section once in the block editor, insert it on any page, and editing it later updates every page that uses it. Kodanote MCP can list, read, create and update them, and a **Used in** column and editor panel show where each one is used before you change it.
 
 **Theme.** `wp-content/themes/site`, an empty child of Twenty Twenty-Five. It renders exactly like the parent until you change something. Design changes are meant to go through Global Styles and the Site Editor (by hand or over MCP), not theme files.
 
