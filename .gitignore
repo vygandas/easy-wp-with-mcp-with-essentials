@@ -1,0 +1,41 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+
+# WordPress runtime state (production uploads live in the S3 bucket)
+wp-content/uploads/*
+!wp-content/uploads/.gitkeep
+wp-content/upgrade/
+wp-content/upgrade-temp-backup/
+wp-content/cache/
+wp-content/debug.log
+wp-content/advanced-cache.php
+wp-content/object-cache.php
+
+# Local dev artifacts
+docker/caddy-root.crt
+*.log
+
+# Theme build output is produced during the Docker build, not committed
+node_modules/
+wp-content/themes/*/assets/dist/
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Claude Code per-machine settings
+.claude/settings.local.json
+
+# Pulled from GitHub by docker/fetch-plugins.sh (see docker/external-plugins.txt)
+wp-content/plugins/kodanote-mcp/
+wp-content/plugins/kodanote-content-publisher/
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
+.beads/proxieddb/

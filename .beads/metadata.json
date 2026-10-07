@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "easy_wp",
+  "project_id": "6945f222-b4c5-4411-b65a-f18c18b34c7e"
+}
